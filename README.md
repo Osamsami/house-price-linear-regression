@@ -1,3 +1,5 @@
+![House Price Prediction](Visuals/house_price_preview.png)
+
 # House Price Prediction using Linear Regression
 
 ## Project Overview
