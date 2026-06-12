@@ -24,6 +24,31 @@ This application consists of three decoupled components:
 2. **FastAPI Backend (`app/main.py`):** An asynchronous, robust REST API that validates incoming arrays seamlessly via `Pydantic` models and transforms JSON objects into predictable Pandas dataframes.
 3. **Streamlit Frontend (`streamlit_app.py`):** An interactive UI separating UI complexity from data science. It abstracts the many possible features down to the crucial top 8, supplying defaults on the rest, and connects smoothly to the FastAPI endpoint.
 
+### System Architecture Workflow
+
+```mermaid
+graph TD;
+    %% Data Pipeline
+    A[Raw Data CSV] --> B(Jupyter Notebook / Data Cleaning)
+    B --> C{Scikit-Learn Linear Regression}
+    
+    %% Model Serialization
+    C -->|joblib.dump| D[model.pkl]
+    
+    %% Backend Engine
+    D --> E[FastAPI Backend - app/main.py]
+    E -->|Validation| F((Pydantic Schema))
+    
+    %% Frontend & User
+    E <-->|REST API POST /predict| G[Streamlit Frontend - streamlit_app.py]
+    G --> H([End User Dashboard])
+
+    %% Styling
+    style E fill:#009688,stroke:#333,stroke-width:2px,color:#fff
+    style G fill:#E91E63,stroke:#333,stroke-width:2px,color:#fff
+    style D fill:#FFC107,stroke:#333,stroke-width:1px,color:#000
+```
+
 ---
 
 ## Installation & Local Run
