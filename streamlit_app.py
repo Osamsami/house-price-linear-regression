@@ -218,7 +218,8 @@ if st.button(
     try:
         with st.spinner(
             "Analyzing property value..."
-        ):
+        ):  
+            input_data['Id'] = 0
             df = pd.DataFrame([input_data])
             prediction = model.predict(df)
             predicted_price = float(prediction[0])
