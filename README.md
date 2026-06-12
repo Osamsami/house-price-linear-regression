@@ -1,87 +1,88 @@
-![House Price Prediction](Visuals/house_price_preview.png)
+# House Price Prediction Microservices
 
-# House Price Prediction using Linear Regression
+![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.100.0-009688.svg)
+![Streamlit](https://img.shields.io/badge/Streamlit-1.25.0-FF4B4B.svg)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)
+![Scikit-Learn](https://img.shields.io/badge/scikit--learn-1.3.0-F7931E.svg)
 
-## Project Overview
+A full-stack, production-ready Machine Learning application predicting house prices based on physical attributes. This repository implements a robust microservices architecture demonstrating best practices for serving models locally and in the cloud.
 
-This project builds a complete machine learning pipeline to predict house prices using Linear Regression.
+---
 
-The goal is to explore real-world housing data, perform data preprocessing, train a regression model, and evaluate its performance using statistical metrics and visual analysis.
+## Live Demo
 
-## Dataset
+**[Live Streamlit App](insert-link-here)** *(Link coming soon in cloud deployment phase)*
 
-Dataset used:
-House Prices: Advanced Regression Techniques (Kaggle)
+---
 
-The dataset contains housing features such as:
+## Project Architecture
 
-- Living Area
-- Number of Rooms
-- Year Built
-- Garage Area
-- Lot Area
+This application consists of three decoupled components:
 
-Target variable:
-SalePrice
+1. **Machine Learning Model (Scikit-Learn):** A classic Linear Regression algorithm trained locally via Jupyter Notebook (`research/LR_pred_sale-price.ipynb`). The finalized model is cleanly packaged via `joblib` into `app/model.pkl`.
+2. **FastAPI Backend (`app/main.py`):** An asynchronous, robust REST API that validates incoming arrays seamlessly via `Pydantic` models and transforms JSON objects into predictable Pandas dataframes.
+3. **Streamlit Frontend (`streamlit_app.py`):** An interactive UI separating UI complexity from data science. It abstracts the many possible features down to the crucial top 8, supplying defaults on the rest, and connects smoothly to the FastAPI endpoint.
 
-## Project Workflow
+---
 
-1. Data Acquisition
-2. Exploratory Data Analysis
-3. Data Cleaning
-4. Feature Engineering
-5. Model Training
-6. Model Evaluation
-7. Visualization
+## Installation & Local Run
 
-## Model
+### Prerequisites
+- Python 3.9+ 
+- Virtual Environment tool (`venv` or `conda`)
+- Optionally: Docker installed
 
-Algorithm:
-Linear Regression
+### Setup Environment
 
-Evaluation Metrics:
+1. **Clone the repo and navigate to directory:**
+   ```bash
+   git clone <your-repo-link>
+   cd house-price-linear-regression
+   ```
 
-- R² Score
-- RMSE
-- MAE
+2. **Set up virtual environment & install requirements:**
+   ```bash
+   python -m venv venv
+   # Windows:
+   .\venv\Scripts\activate 
+   # Mac/Linux:
+   source venv/bin/activate
+   
+   pip install -r requirements.txt
+   ```
 
-## Visualizations
+### Running the Services
 
-The project includes:
+To see the system in action, you need **two terminal windows**:
 
-- Sale Price Distribution
-- Correlation Heatmap
-- Scatter Plot Analysis
-- Actual vs Predicted Plot
-- Residual Plot
-- Error Distribution
+**Terminal 1: Start the FastAPI Backend**
+```bash
+uvicorn app.main:app --reload
+```
+*The API will be live at `http://localhost:8000` (Access Interactive Docs at `http://localhost:8000/docs`).*
 
-## Project Structure
-Data/Raw/
+**Terminal 2: Launch the Streamlit Frontend**
+```bash
+streamlit run streamlit_app.py
+```
+*A browser tab will automatically open at `http://localhost:8501` featuring the interactive predicting interface.*
 
-Data/Processed/
+---
 
-Notebooks/
+## Docker Deployment
 
-Visualizations/
+To spin this up as a containerized FastAPI backend (No Streamlit UI yet but completely functional API):
 
+```bash
+docker build -t house-price-api .
+docker run -d -p 8000:8000 house-price-api
+```
 
-## Results
+---
 
-The Linear Regression model demonstrates a strong relationship between housing features and price.
+## License
 
-Visual analysis confirms the model captures the linear trend in the dataset.
+**All Rights Reserved**
 
-## Technologies Used
-
-Python  
-Pandas  
-NumPy  
-Matplotlib  
-Seaborn  
-Scikit-Learn  
-Google Colab
-
-## Author
-
-Osam Sami
+The code is available for viewing and running the live demo for portfolio evaluation purposes only. No permission is granted to copy, distribute, modify, or use this code for any personal or commercial purposes without explicit written consent.
