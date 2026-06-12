@@ -12,7 +12,7 @@ A full-stack, production-ready Machine Learning application predicting house pri
 
 ## Live Demo
 
-**[Live Streamlit App](insert-link-here)** *(Link coming soon in cloud deployment phase)*
+**[Live Streamlit App](https://house-price-valuation.streamlit.app/)** *(Link coming soon in cloud deployment phase)*
 
 ---
 
