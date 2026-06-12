@@ -1,5 +1,7 @@
 import streamlit as st
-import requests
+import joblib
+import os
+import pandas as pd
 import plotly.graph_objects as go
 
 st.set_page_config(
@@ -7,7 +9,16 @@ st.set_page_config(
     layout="wide"
 )
 
-API_URL = "http://127.0.0.1:8000/predict"
+@st.cache_resource
+def load_model():
+    model_path = os.path.join(os.path.dirname(__file__), 'app', 'model.pkl')
+    return joblib.load(model_path)
+
+try:
+    model = load_model()
+except Exception as e:
+    st.error(f"Model load error: {e}")
+    st.stop()
 
 st.markdown("""
 <style>
@@ -205,139 +216,117 @@ if st.button(
 ):
 
     try:
-
         with st.spinner(
             "Analyzing property value..."
         ):
+            df = pd.DataFrame([input_data])
+            prediction = model.predict(df)
+            predicted_price = float(prediction[0])
 
-            response = requests.post(
-                API_URL,
-                json=input_data,
-                timeout=20
+        st.markdown("---")
+
+        st.markdown(
+            '<div class="section-title">'
+            'Prediction Result'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            '<div class="result-card">',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            f'<div class="price-text">'
+            f'${predicted_price:,.2f}'
+            f'</div>',
+            unsafe_allow_html=True
+        )
+
+        if predicted_price < 150000:
+            category = "Budget"
+            reason = (
+                "Property falls in an affordable "
+                "market segment."
             )
 
-        if response.status_code == 200:
-
-            predicted_price = response.json()[
-                "predicted_price"
-            ]
-
-            st.markdown("---")
-
-            st.markdown(
-                '<div class="section-title">'
-                'Prediction Result'
-                '</div>',
-                unsafe_allow_html=True
+        elif predicted_price < 300000:
+            category = "Mid-Range"
+            reason = (
+                "Balanced valuation based on "
+                "selected property features."
             )
 
-            st.markdown(
-                '<div class="result-card">',
-                unsafe_allow_html=True
-            )
-
-            st.markdown(
-                f'<div class="price-text">'
-                f'${predicted_price:,.2f}'
-                f'</div>',
-                unsafe_allow_html=True
-            )
-
-            if predicted_price < 150000:
-                category = "Budget"
-                reason = (
-                    "Property falls in an affordable "
-                    "market segment."
-                )
-
-            elif predicted_price < 300000:
-                category = "Mid-Range"
-                reason = (
-                    "Balanced valuation based on "
-                    "selected property features."
-                )
-
-            elif predicted_price < 600000:
-                category = "Premium"
-                reason = (
-                    "Higher value due to stronger "
-                    "property specifications."
-                )
-
-            else:
-                category = "Luxury"
-                reason = (
-                    "Premium property with "
-                    "high estimated market value."
-                )
-
-            st.success(
-                f"Market Segment: {category}"
-            )
-
-            st.info(reason)
-
-            market_ranges = {
-                "Budget": 150000,
-                "Mid-Range": 300000,
-                "Premium": 600000,
-                "Luxury": 900000
-            }
-
-            fig = go.Figure()
-
-            fig.add_trace(
-                go.Bar(
-                    x=list(
-                        market_ranges.keys()
-                    ),
-                    y=list(
-                        market_ranges.values()
-                    ),
-                    name="Market Range"
-                )
-            )
-
-            fig.add_trace(
-                go.Scatter(
-                    x=[category],
-                    y=[predicted_price],
-                    mode="markers+text",
-                    text=["Your Property"],
-                    textposition="top center",
-                    marker=dict(size=18),
-                    name="Prediction"
-                )
-            )
-
-            fig.update_layout(
-                title="Market Position Analysis",
-                xaxis_title="Market Category",
-                yaxis_title="Price ($)",
-                template="plotly_white",
-                height=500
-            )
-
-            st.plotly_chart(
-                fig,
-                use_container_width=True
-            )
-
-            st.markdown(
-                '</div>',
-                unsafe_allow_html=True
+        elif predicted_price < 600000:
+            category = "Premium"
+            reason = (
+                "Higher value due to stronger "
+                "property specifications."
             )
 
         else:
-            st.error(
-                f"Backend Error: "
-                f"{response.text}"
+            category = "Luxury"
+            reason = (
+                "Premium property with "
+                "high estimated market value."
             )
 
-    except requests.exceptions.ConnectionError:
-        st.error(
-            "Cannot connect to backend. "
-            "Make sure FastAPI is running."
+        st.success(
+            f"Market Segment: {category}"
+        )
+
+        st.info(reason)
+
+        market_ranges = {
+            "Budget": 150000,
+            "Mid-Range": 300000,
+            "Premium": 600000,
+            "Luxury": 900000
+        }
+
+        fig = go.Figure()
+
+        fig.add_trace(
+            go.Bar(
+                x=list(
+                    market_ranges.keys()
+                ),
+                y=list(
+                    market_ranges.values()
+                ),
+                name="Market Range"
+            )
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=[category],
+                y=[predicted_price],
+                mode="markers+text",
+                text=["Your Property"],
+                textposition="top center",
+                marker=dict(size=18),
+                name="Prediction"
+            )
+        )
+
+        fig.update_layout(
+            title="Market Position Analysis",
+            xaxis_title="Market Category",
+            yaxis_title="Price ($)",
+            template="plotly_white",
+            height=500
+        )
+
+        st.plotly_chart(
+            fig,
+            use_container_width=True
+        )
+
+        st.markdown(
+            '</div>',
+            unsafe_allow_html=True
         )
 
     except Exception as error:
