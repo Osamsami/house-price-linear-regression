@@ -216,15 +216,24 @@ if st.button(
 ):
 
     try:
-        with st.spinner(
-            "Analyzing property value..."
-        ):  
-            input_data['Id'] = 0
+        
+        with st.spinner("Analyzing property value..."):
             df = pd.DataFrame([input_data])
+            
+            # 1. Check what features the model actually expects
+            expected_features = model.feature_names_in_
+            
+            # 2. Add any missing features (like 'Id') automatically with 0
+            for col in expected_features:
+                if col not in df.columns:
+                    df[col] = 0
+                    
+            # 3. Force the DataFrame to perfectly match the model's expected order
+            df = df[expected_features]
+            
+            # 4. Predict
             prediction = model.predict(df)
             predicted_price = float(prediction[0])
-
-        st.markdown("---")
 
         st.markdown(
             '<div class="section-title">'
